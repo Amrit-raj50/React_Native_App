@@ -9,10 +9,16 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
+import * as MediaLibrary from "expo-media-library";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import Animated, { FadeIn, FadeInDown, ZoomIn } from "react-native-reanimated";
+import { useRouter } from "expo-router";
 
 export default function CameraScreen() {
+  const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
+  const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
+  const [facing, setFacing] = useState("back");
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [capturedPhoto, setCapturedPhoto] = useState(null);
   const [captureTime, setCaptureTime] = useState(null);
@@ -23,7 +29,10 @@ export default function CameraScreen() {
     if (permission && !permission.granted && permission.canAskAgain) {
       requestPermission();
     }
-  }, [permission]);
+    if (mediaPermission && !mediaPermission.granted && mediaPermission.canAskAgain) {
+      requestMediaPermission();
+    }
+  }, [permission, mediaPermission]);
 
   if (!permission) {
     // Permission state is still loading
@@ -90,19 +99,39 @@ export default function CameraScreen() {
     );
   };
 
+  const savePhoto = async () => {
+    if (!mediaPermission?.granted) {
+      const p = await requestMediaPermission();
+      if (!p.granted) {
+        Alert.alert("Permission Denied", "We need permission to save photos to your gallery.");
+        return;
+      }
+    }
+    try {
+      await MediaLibrary.saveToLibraryAsync(capturedPhoto);
+      Alert.alert("Success", "Photo saved to gallery!");
+    } catch (error) {
+      Alert.alert("Error", "Failed to save photo.");
+    }
+  };
+
   if (capturedPhoto) {
     return (
       <View style={styles.previewContainer}>
         <Image source={{ uri: capturedPhoto }} style={styles.previewImage} />
-        <View style={styles.metadataContainer}>
+        <Animated.View entering={FadeIn.delay(200).duration(400)} style={styles.metadataContainer}>
           <Ionicons name="time-outline" size={20} color="#FFFFFF" />
           <Text style={styles.captureTimeText}>{captureTime}</Text>
-        </View>
+        </Animated.View>
 
-        <View style={styles.previewActions}>
+        <Animated.View entering={FadeInDown.delay(300).duration(400)} style={styles.previewActions}>
           <TouchableOpacity style={styles.actionButton} onPress={retakePhoto}>
             <Ionicons name="refresh" size={24} color="#FFFFFF" />
             <Text style={styles.actionButtonText}>Retake</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#2E86DE' }]} onPress={savePhoto}>
+            <Ionicons name="download-outline" size={24} color="#FFFFFF" />
+            <Text style={styles.actionButtonText}>Save</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.actionButton, styles.deleteButton]}
@@ -111,7 +140,7 @@ export default function CameraScreen() {
             <Ionicons name="trash" size={24} color="#FFFFFF" />
             <Text style={styles.actionButtonText}>Delete</Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       </View>
     );
   }
@@ -120,7 +149,7 @@ export default function CameraScreen() {
     <View style={styles.container}>
       <CameraView
         style={styles.camera}
-        facing="back"
+        facing={facing}
         ref={cameraRef}
         onCameraReady={() => setIsCameraReady(true)}
       >
@@ -131,11 +160,19 @@ export default function CameraScreen() {
         )}
         
         <View style={styles.cameraOverlay}>
-          <View style={styles.bottomControls}>
+          <Animated.View entering={FadeIn.delay(300).duration(400)} style={styles.topControls}>
+            <TouchableOpacity style={styles.backButton} onPress={() => router.push('/(tabs)')}>
+              <Ionicons name="arrow-back" size={28} color="#FFFFFF" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.flipButton} onPress={() => setFacing(current => (current === 'back' ? 'front' : 'back'))}>
+              <Ionicons name="camera-reverse-outline" size={28} color="#FFFFFF" />
+            </TouchableOpacity>
+          </Animated.View>
+          <Animated.View entering={FadeIn.delay(500).duration(400)} style={styles.bottomControls}>
             <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
               <View style={styles.captureButtonInner} />
             </TouchableOpacity>
-          </View>
+          </Animated.View>
         </View>
       </CameraView>
     </View>
@@ -194,7 +231,24 @@ const styles = StyleSheet.create({
   },
   cameraOverlay: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
+  },
+  topControls: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 20,
+    alignItems: "center",
+    marginTop: 40,
+  },
+  backButton: {
+    backgroundColor: "rgba(0,0,0,0.5)",
+    padding: 12,
+    borderRadius: 30,
+  },
+  flipButton: {
+    backgroundColor: "rgba(0,0,0,0.5)",
+    padding: 12,
+    borderRadius: 30,
   },
   bottomControls: {
     padding: 30,
@@ -251,7 +305,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.6)",
     paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: 12,
     borderRadius: 8,
   },
   deleteButton: {
