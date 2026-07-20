@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { ThemeContext } from '../../context/ThemeContext';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function ProfileScreen() {
-  const { isDarkMode, colors } = useContext(ThemeContext);
+  const { colors } = useContext(ThemeContext);
 
   const studentData = {
     name: 'Amrit Raj',

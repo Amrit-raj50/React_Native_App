@@ -45,7 +45,7 @@ export default function LocationScreen() {
       });
       setLocation(loc);
       await fetchWeather(loc.coords.latitude, loc.coords.longitude);
-    } catch (error) {
+    } catch (_error) {
       setErrorMsg('Failed to fetch location');
     } finally {
       setLoading(false);
@@ -54,6 +54,7 @@ export default function LocationScreen() {
 
   useEffect(() => {
     fetchLocation();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const copyToClipboard = async () => {

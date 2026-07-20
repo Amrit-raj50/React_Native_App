@@ -10,7 +10,7 @@ import { ThemeContext } from '../../../context/ThemeContext';
 import Animated, { FadeInRight, ZoomIn } from 'react-native-reanimated';
 
 export default function HistoryScreen() {
-  const { isDarkMode, colors } = useContext(ThemeContext);
+  const { colors } = useContext(ThemeContext);
   const [surveys, setSurveys] = useState([]);
   const [filteredSurveys, setFilteredSurveys] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,7 +22,7 @@ export default function HistoryScreen() {
       const data = await AsyncStorage.getItem('surveys');
       const parsed = data ? JSON.parse(data) : [];
       setSurveys(parsed.reverse()); // Newest first
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'Failed to load surveys');
     }
   };

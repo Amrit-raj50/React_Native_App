@@ -5,7 +5,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { ThemeContext } from '../../context/ThemeContext';
 
 export default function ClipboardScreen() {
-  const { isDarkMode, colors } = useContext(ThemeContext);
+  const { colors } = useContext(ThemeContext);
   const [pastedNotes, setPastedNotes] = useState('');
 
   const copyToClipboard = async (text, label) => {

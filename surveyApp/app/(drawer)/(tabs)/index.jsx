@@ -7,7 +7,7 @@ import { ThemeContext } from "../../../context/ThemeContext";
 
 export default function Dashboard() {
   const router = useRouter();
-  const { isDarkMode, colors } = useContext(ThemeContext);
+  const { colors } = useContext(ThemeContext);
   const [stats, setStats] = useState({ todayCount: 0, totalCount: 0 });
   const [recentSurveys, setRecentSurveys] = useState([]);
 
@@ -26,7 +26,7 @@ export default function Dashboard() {
       // Get last 2 surveys
       const recent = surveys.slice(-2).reverse();
       setRecentSurveys(recent);
-    } catch (error) {
+    } catch (_error) {
       console.log('Failed to load dashboard data');
     }
   };
@@ -58,7 +58,7 @@ export default function Dashboard() {
         </View>
         <View style={[styles.statsContainer, { borderTopColor: colors.border }]}>
           <View style={styles.statBox}>
-            <Text style={[styles.statLabel, { color: colors.subText }]}>Today's Surveys</Text>
+            <Text style={[styles.statLabel, { color: colors.subText }]}>Today&apos;s Surveys</Text>
             <Text style={[styles.statValue, { color: colors.primary }]}>{stats.todayCount}</Text>
           </View>
           <View style={styles.statBox}>

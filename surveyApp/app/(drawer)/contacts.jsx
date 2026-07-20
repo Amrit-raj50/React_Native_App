@@ -11,7 +11,7 @@ import { ThemeContext } from '../../context/ThemeContext';
 
 export default function ContactsScreen() {
   const router = useRouter();
-  const { isDarkMode, colors } = useContext(ThemeContext);
+  const { colors } = useContext(ThemeContext);
   const [contacts, setContacts] = useState([]);
   const [filteredContacts, setFilteredContacts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -42,7 +42,7 @@ export default function ContactsScreen() {
       } else {
         setPermissionGranted(false);
       }
-    } catch (error) {
+    } catch (_error) {
       Alert.alert("Error", "Failed to fetch contacts");
     } finally {
       if (isRefresh) setRefreshing(false);

@@ -11,7 +11,7 @@ import {
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import Animated, { FadeIn, FadeInDown, ZoomIn } from "react-native-reanimated";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useRouter } from "expo-router";
 
 export default function CameraScreen() {
@@ -32,7 +32,7 @@ export default function CameraScreen() {
     if (mediaPermission && !mediaPermission.granted && mediaPermission.canAskAgain) {
       requestMediaPermission();
     }
-  }, [permission, mediaPermission]);
+  }, [permission, mediaPermission, requestMediaPermission, requestPermission]);
 
   if (!permission) {
     // Permission state is still loading
@@ -67,7 +67,7 @@ export default function CameraScreen() {
         });
         setCapturedPhoto(photo.uri);
         setCaptureTime(new Date().toLocaleString());
-      } catch (error) {
+      } catch (_error) {
         Alert.alert("Error", "Failed to take picture.");
       }
     }
@@ -110,7 +110,7 @@ export default function CameraScreen() {
     try {
       await MediaLibrary.saveToLibraryAsync(capturedPhoto);
       Alert.alert("Success", "Photo saved to gallery!");
-    } catch (error) {
+    } catch (_error) {
       Alert.alert("Error", "Failed to save photo.");
     }
   };

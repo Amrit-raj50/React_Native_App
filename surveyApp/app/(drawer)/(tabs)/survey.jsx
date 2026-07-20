@@ -23,7 +23,7 @@ import { ThemeContext } from "../../../context/ThemeContext";
 
 export default function Survey() {
   const router = useRouter();
-  const { isDarkMode, colors } = useContext(ThemeContext);
+  const { colors } = useContext(ThemeContext);
 
   const [siteName, setSiteName] = useState("");
   const [clientName, setClientName] = useState("");
@@ -31,7 +31,7 @@ export default function Survey() {
   const [contactNumber, setContactNumber] = useState("");
   const [photoUri, setPhotoUri] = useState("");
   const [priority, setPriority] = useState("Medium");
-  const [date, setDate] = useState(new Date().toLocaleDateString());
+  const [date] = useState(new Date().toLocaleDateString());
   const [fetchingLocation, setFetchingLocation] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
   
@@ -77,12 +77,12 @@ export default function Survey() {
           // Fallback to Nominatim API
           await fetchFallbackAddress(latitude, longitude);
         }
-      } catch (err) {
+      } catch (_err) {
         // Fallback if expo-location reverse geocoding throws an error
         await fetchFallbackAddress(latitude, longitude);
       }
 
-    } catch (error) {
+    } catch (_error) {
       Alert.alert("Error", "Failed to get current location");
     } finally {
       setFetchingLocation(false);
@@ -98,7 +98,7 @@ export default function Survey() {
       } else {
         setSiteName(`Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}`);
       }
-    } catch (e) {
+    } catch (_e) {
       setSiteName(`Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}`);
     }
   };
@@ -130,7 +130,7 @@ export default function Survey() {
         });
         setPhotoUri(photo.uri);
         setCameraVisible(false);
-      } catch (error) {
+      } catch (_error) {
         Alert.alert("Error", "Failed to take picture.");
       }
     }
@@ -147,7 +147,7 @@ export default function Survey() {
     try {
       await MediaLibrary.saveToLibraryAsync(photoUri);
       Alert.alert("Success", "Photo saved to gallery!");
-    } catch (error) {
+    } catch (_error) {
       Alert.alert("Error", "Failed to save photo.");
     }
   };
@@ -196,7 +196,7 @@ export default function Survey() {
           router.push("/history");
         }}]
       );
-    } catch (error) {
+    } catch (_error) {
       Alert.alert("Error", "Failed to save survey");
     }
   };
