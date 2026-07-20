@@ -6,9 +6,11 @@ import {
 import * as Contacts from 'expo-contacts';
 import * as Clipboard from 'expo-clipboard';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useRouter } from 'expo-router';
 import { ThemeContext } from '../../context/ThemeContext';
 
 export default function ContactsScreen() {
+  const router = useRouter();
   const { isDarkMode, colors } = useContext(ThemeContext);
   const [contacts, setContacts] = useState([]);
   const [filteredContacts, setFilteredContacts] = useState([]);
@@ -115,6 +117,12 @@ export default function ContactsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={() => router.push('/(tabs)')} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={28} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Contacts</Text>
+      </View>
       <View style={[styles.searchContainer, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
         <Ionicons name="search" size={20} color={colors.placeholder} style={styles.searchIcon} />
         <TextInput
@@ -161,6 +169,20 @@ export default function ContactsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    marginTop: 15,
+  },
+  backButton: {
+    marginRight: 15,
+    padding: 4,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '800',
   },
   centerContainer: {
     flex: 1,
