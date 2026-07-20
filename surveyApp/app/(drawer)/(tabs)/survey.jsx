@@ -15,8 +15,10 @@ import { useRouter } from "expo-router";
 import * as Location from "expo-location";
 import * as Clipboard from 'expo-clipboard';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import * as MediaLibrary from "expo-media-library";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from "@expo/vector-icons/Ionicons";
+import Animated, { FadeInUp, ZoomIn } from "react-native-reanimated";
 import { ThemeContext } from "../../../context/ThemeContext";
 
 export default function Survey() {
@@ -36,6 +38,8 @@ export default function Survey() {
   // Camera State
   const [cameraVisible, setCameraVisible] = useState(false);
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
+  const [facing, setFacing] = useState("back");
   const cameraRef = useRef(null);
 
   const handleGetLocation = async () => {
@@ -132,6 +136,22 @@ export default function Survey() {
     }
   };
 
+  const savePhoto = async () => {
+    if (!mediaPermission?.granted) {
+      const p = await requestMediaPermission();
+      if (!p.granted) {
+        Alert.alert("Permission Denied", "We need permission to save photos to your gallery.");
+        return;
+      }
+    }
+    try {
+      await MediaLibrary.saveToLibraryAsync(photoUri);
+      Alert.alert("Success", "Photo saved to gallery!");
+    } catch (error) {
+      Alert.alert("Error", "Failed to save photo.");
+    }
+  };
+
   const handlePreview = () => {
     if (!siteName.trim() || !clientName.trim() || !description.trim()) {
       Alert.alert("Validation Error", "Please fill out Site Name, Client Name, and Description.");
@@ -184,9 +204,14 @@ export default function Survey() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Create New Survey</Text>
+        <View style={styles.headerRow}>
+          <TouchableOpacity onPress={() => router.push('/(tabs)')} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={28} color={colors.text} />
+          </TouchableOpacity>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Create New Survey</Text>
+        </View>
         
-        <View style={styles.inputGroup}>
+        <Animated.View entering={FadeInUp.delay(100).duration(400)} style={styles.inputGroup}>
           <Text style={[styles.label, { color: colors.text }]}>Site Name / Location *</Text>
           <View style={styles.rowContainer}>
             <TextInput
@@ -210,9 +235,9 @@ export default function Survey() {
               )}
             </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
 
-        <View style={styles.inputGroup}>
+        <Animated.View entering={FadeInUp.delay(200).duration(400)} style={styles.inputGroup}>
           <Text style={[styles.label, { color: colors.text }]}>Client Name *</Text>
           <TextInput
             style={[
@@ -224,9 +249,9 @@ export default function Survey() {
             value={clientName}
             onChangeText={setClientName}
           />
-        </View>
+        </Animated.View>
 
-        <View style={styles.inputGroup}>
+        <Animated.View entering={FadeInUp.delay(300).duration(400)} style={styles.inputGroup}>
           <Text style={[styles.label, { color: colors.text }]}>Contact Number</Text>
           <View style={styles.rowContainer}>
             <TextInput
@@ -247,9 +272,9 @@ export default function Survey() {
               <Ionicons name="clipboard" size={24} color={colors.primary} />
             </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
 
-        <View style={styles.inputGroup}>
+        <Animated.View entering={FadeInUp.delay(400).duration(400)} style={styles.inputGroup}>
           <Text style={[styles.label, { color: colors.text }]}>Description / Notes *</Text>
           <TextInput
             style={[
@@ -263,20 +288,28 @@ export default function Survey() {
             multiline
             numberOfLines={4}
           />
-        </View>
+        </Animated.View>
 
         {/* Photo Capture Section */}
-        <View style={styles.inputGroup}>
+        <Animated.View entering={FadeInUp.delay(500).duration(400)} style={styles.inputGroup}>
           <Text style={[styles.label, { color: colors.text }]}>Survey Photo *</Text>
           {photoUri ? (
             <View style={[styles.photoContainer, { borderColor: colors.border }]}>
               <Image source={{ uri: photoUri }} style={styles.photoPreview} />
-              <TouchableOpacity 
-                style={[styles.photoDeleteBtn, { backgroundColor: colors.danger }]}
-                onPress={() => setPhotoUri("")}
-              >
-                <Ionicons name="trash" size={20} color="#FFFFFF" />
-              </TouchableOpacity>
+              <View style={styles.photoActions}>
+                <TouchableOpacity 
+                  style={[styles.photoActionBtn, { backgroundColor: '#2E86DE' }]}
+                  onPress={savePhoto}
+                >
+                  <Ionicons name="download-outline" size={20} color="#FFFFFF" />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.photoActionBtn, { backgroundColor: colors.danger, marginLeft: 10 }]}
+                  onPress={() => setPhotoUri("")}
+                >
+                  <Ionicons name="trash" size={20} color="#FFFFFF" />
+                </TouchableOpacity>
+              </View>
             </View>
           ) : (
             <TouchableOpacity 
@@ -287,9 +320,9 @@ export default function Survey() {
               <Text style={[styles.photoBtnText, { color: colors.subText }]}>Capture Photo</Text>
             </TouchableOpacity>
           )}
-        </View>
+        </Animated.View>
 
-        <View style={styles.inputGroup}>
+        <Animated.View entering={FadeInUp.delay(600).duration(400)} style={styles.inputGroup}>
           <Text style={[styles.label, { color: colors.text }]}>Priority</Text>
           <View style={styles.priorityContainer}>
             {["Low", "Medium", "High"].map((item) => (
@@ -314,7 +347,7 @@ export default function Survey() {
               </TouchableOpacity>
             ))}
           </View>
-        </View>
+        </Animated.View>
 
         <View style={styles.inputGroup}>
           <Text style={[styles.label, { color: colors.text }]}>Date</Text>
@@ -340,14 +373,22 @@ export default function Survey() {
       <Modal visible={cameraVisible} animationType="slide" transparent={false}>
         <View style={styles.cameraContainer}>
           {cameraPermission?.granted && (
-            <CameraView style={styles.camera} facing="back" ref={cameraRef}>
+            <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
               <View style={styles.cameraOverlay}>
-                <TouchableOpacity 
-                  style={styles.closeCameraBtn}
-                  onPress={() => setCameraVisible(false)}
-                >
-                  <Ionicons name="close" size={30} color="#FFFFFF" />
-                </TouchableOpacity>
+                <View style={styles.topCameraControls}>
+                  <TouchableOpacity 
+                    style={styles.closeCameraBtn}
+                    onPress={() => setCameraVisible(false)}
+                  >
+                    <Ionicons name="close" size={30} color="#FFFFFF" />
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.flipCameraBtn}
+                    onPress={() => setFacing(current => (current === 'back' ? 'front' : 'back'))}
+                  >
+                    <Ionicons name="camera-reverse-outline" size={28} color="#FFFFFF" />
+                  </TouchableOpacity>
+                </View>
                 <View style={styles.bottomControls}>
                   <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
                     <View style={styles.captureButtonInner} />
@@ -362,7 +403,7 @@ export default function Survey() {
       {/* Preview Modal */}
       <Modal visible={previewVisible} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+          <Animated.View entering={ZoomIn.duration(400)} style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <Text style={[styles.modalTitle, { color: colors.text }]}>Survey Preview</Text>
             
             <ScrollView style={styles.previewScroll}>
@@ -414,7 +455,7 @@ export default function Survey() {
                 <Text style={styles.submitButtonText}>Submit Survey</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </Animated.View>
         </View>
       </Modal>
     </View>
@@ -429,10 +470,18 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 25,
+  },
+  backButton: {
+    marginRight: 15,
+    padding: 4,
+  },
   headerTitle: {
     fontSize: 26,
     fontWeight: "800",
-    marginBottom: 25,
     letterSpacing: -0.5,
   },
   inputGroup: {
@@ -496,10 +545,13 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
   },
-  photoDeleteBtn: {
+  photoActions: {
     position: 'absolute',
     top: 10,
     right: 10,
+    flexDirection: 'row',
+  },
+  photoActionBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -555,12 +607,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 20,
   },
-  closeCameraBtn: {
-    alignSelf: 'flex-end',
+  topCameraControls: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginTop: 40,
+  },
+  closeCameraBtn: {
     padding: 10,
     backgroundColor: 'rgba(0,0,0,0.5)',
     borderRadius: 20,
+  },
+  flipCameraBtn: {
+    padding: 12,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 30,
   },
   bottomControls: {
     alignItems: 'center',
