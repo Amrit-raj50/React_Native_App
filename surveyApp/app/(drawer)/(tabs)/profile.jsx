@@ -1,21 +1,22 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import Animated, { FadeInUp, ZoomIn } from 'react-native-reanimated';
 
 export default function ProfileScreen() {
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
+      <Animated.View entering={ZoomIn.delay(100).duration(400)} style={styles.header}>
         <View style={styles.avatarContainer}>
           <Text style={styles.avatarText}>AR</Text>
         </View>
         <Text style={styles.name}>Amrit Raj</Text>
         <Text style={styles.studentId}>SUK250054CE047</Text>
-      </View>
+      </Animated.View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Personal Information</Text>
-        <View style={styles.infoCard}>
+        <Animated.View entering={FadeInUp.delay(200).duration(400)} style={styles.infoCard}>
           <View style={styles.infoRow}>
             <Ionicons name="mail-outline" size={20} color="#7F8FA6" style={styles.icon} />
             <Text style={styles.infoText}>amrit.raj@example.com</Text>
@@ -28,38 +29,46 @@ export default function ProfileScreen() {
             <Ionicons name="location-outline" size={20} color="#7F8FA6" style={styles.icon} />
             <Text style={styles.infoText}>Bangalore, India</Text>
           </View>
-        </View>
+        </Animated.View>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>App Preferences</Text>
-        <TouchableOpacity style={styles.actionCard}>
-          <View style={styles.actionLeft}>
-            <Ionicons name="notifications-outline" size={22} color="#2F3640" style={styles.icon} />
-            <Text style={styles.actionText}>Notifications</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#DCDDE1" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionCard}>
-          <View style={styles.actionLeft}>
-            <Ionicons name="lock-closed-outline" size={22} color="#2F3640" style={styles.icon} />
-            <Text style={styles.actionText}>Privacy & Security</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#DCDDE1" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionCard}>
-          <View style={styles.actionLeft}>
-            <Ionicons name="help-circle-outline" size={22} color="#2F3640" style={styles.icon} />
-            <Text style={styles.actionText}>Help & Support</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#DCDDE1" />
-        </TouchableOpacity>
+        <Animated.View entering={FadeInUp.delay(300).duration(400)}>
+          <TouchableOpacity style={styles.actionCard}>
+            <View style={styles.actionLeft}>
+              <Ionicons name="notifications-outline" size={22} color="#2F3640" style={styles.icon} />
+              <Text style={styles.actionText}>Notifications</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#DCDDE1" />
+          </TouchableOpacity>
+        </Animated.View>
+        <Animated.View entering={FadeInUp.delay(400).duration(400)}>
+          <TouchableOpacity style={styles.actionCard}>
+            <View style={styles.actionLeft}>
+              <Ionicons name="lock-closed-outline" size={22} color="#2F3640" style={styles.icon} />
+              <Text style={styles.actionText}>Privacy & Security</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#DCDDE1" />
+          </TouchableOpacity>
+        </Animated.View>
+        <Animated.View entering={FadeInUp.delay(500).duration(400)}>
+          <TouchableOpacity style={styles.actionCard}>
+            <View style={styles.actionLeft}>
+              <Ionicons name="help-circle-outline" size={22} color="#2F3640" style={styles.icon} />
+              <Text style={styles.actionText}>Help & Support</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#DCDDE1" />
+          </TouchableOpacity>
+        </Animated.View>
       </View>
 
-      <TouchableOpacity style={styles.logoutButton}>
-        <Ionicons name="log-out-outline" size={22} color="#E15F41" style={styles.icon} />
-        <Text style={styles.logoutText}>Log Out</Text>
-      </TouchableOpacity>
+      <Animated.View entering={FadeInUp.delay(600).duration(400)}>
+        <TouchableOpacity style={styles.logoutButton}>
+          <Ionicons name="log-out-outline" size={22} color="#E15F41" style={styles.icon} />
+          <Text style={styles.logoutText}>Log Out</Text>
+        </TouchableOpacity>
+      </Animated.View>
     </ScrollView>
   );
 }

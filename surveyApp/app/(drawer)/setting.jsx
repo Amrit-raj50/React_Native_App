@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ThemeContext } from '../../context/ThemeContext';
 
 export default function SettingsScreen() {
@@ -14,7 +15,7 @@ export default function SettingsScreen() {
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.subText }]}>General</Text>
         
-        <View style={[styles.settingCard, { backgroundColor: colors.card, shadowColor: colors.shadow }]}>
+        <Animated.View entering={FadeInUp.delay(100).duration(400)} style={[styles.settingCard, { backgroundColor: colors.card, shadowColor: colors.shadow }]}>
           <View style={[styles.settingRow, { borderBottomColor: colors.border }]}>
             <View style={styles.settingInfo}>
               <View style={[styles.iconContainer, { backgroundColor: colors.primary + '20' }]}>
@@ -74,23 +75,27 @@ export default function SettingsScreen() {
               thumbColor="#FFFFFF"
             />
           </View>
-        </View>
+        </Animated.View>
       </View>
 
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.subText }]}>About & Legal</Text>
-        <TouchableOpacity style={[styles.actionCard, { backgroundColor: colors.card, shadowColor: colors.shadow }]}>
-          <Text style={[styles.actionText, { color: colors.text }]}>Terms of Service</Text>
-          <Ionicons name="chevron-forward" size={20} color={colors.subText} />
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionCard, { backgroundColor: colors.card, shadowColor: colors.shadow }]}>
-          <Text style={[styles.actionText, { color: colors.text }]}>Privacy Policy</Text>
-          <Ionicons name="chevron-forward" size={20} color={colors.subText} />
-        </TouchableOpacity>
-        <View style={[styles.actionCard, styles.versionCard]}>
+        <Animated.View entering={FadeInUp.delay(200).duration(400)}>
+          <TouchableOpacity style={[styles.actionCard, { backgroundColor: colors.card, shadowColor: colors.shadow }]}>
+            <Text style={[styles.actionText, { color: colors.text }]}>Terms of Service</Text>
+            <Ionicons name="chevron-forward" size={20} color={colors.subText} />
+          </TouchableOpacity>
+        </Animated.View>
+        <Animated.View entering={FadeInUp.delay(300).duration(400)}>
+          <TouchableOpacity style={[styles.actionCard, { backgroundColor: colors.card, shadowColor: colors.shadow }]}>
+            <Text style={[styles.actionText, { color: colors.text }]}>Privacy Policy</Text>
+            <Ionicons name="chevron-forward" size={20} color={colors.subText} />
+          </TouchableOpacity>
+        </Animated.View>
+        <Animated.View entering={FadeInUp.delay(400).duration(400)} style={[styles.actionCard, styles.versionCard]}>
           <Text style={[styles.versionLabel, { color: colors.subText }]}>App Version</Text>
           <Text style={[styles.versionValue, { color: colors.primary }]}>2.0.0 (Premium Build)</Text>
-        </View>
+        </Animated.View>
       </View>
     </ScrollView>
   );
