@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect } from 'expo-router';
 import { ThemeContext } from '../../../context/ThemeContext';
+import Animated, { FadeInRight, ZoomIn } from 'react-native-reanimated';
 
 export default function HistoryScreen() {
   const { isDarkMode, colors } = useContext(ThemeContext);
@@ -78,11 +79,12 @@ export default function HistoryScreen() {
     }
   };
 
-  const renderSurvey = ({ item }) => (
-    <TouchableOpacity 
-      style={[styles.surveyCard, { backgroundColor: colors.card, shadowColor: colors.shadow }]} 
-      onPress={() => setSelectedSurvey(item)}
-    >
+  const renderSurvey = ({ item, index }) => (
+    <Animated.View entering={FadeInRight.delay(index * 100).duration(400)}>
+      <TouchableOpacity 
+        style={[styles.surveyCard, { backgroundColor: colors.card, shadowColor: colors.shadow }]} 
+        onPress={() => setSelectedSurvey(item)}
+      >
       <View style={styles.cardHeader}>
         <Text style={[styles.siteName, { color: colors.text }]} numberOfLines={1}>{item.siteName}</Text>
         <TouchableOpacity onPress={() => deleteSurvey(item.id)}>
@@ -108,6 +110,7 @@ export default function HistoryScreen() {
         <Text style={[styles.dateText, { color: colors.subText }]}>{item.date}</Text>
       </View>
     </TouchableOpacity>
+    </Animated.View>
   );
 
   return (
@@ -156,12 +159,12 @@ export default function HistoryScreen() {
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
+          <Animated.View entering={ZoomIn.duration(500)} style={styles.emptyContainer}>
             <View style={[styles.emptyIconBg, { backgroundColor: colors.card }]}>
               <Ionicons name="document-text-outline" size={60} color={colors.subText} />
             </View>
             <Text style={[styles.emptyText, { color: colors.subText }]}>No surveys found</Text>
-          </View>
+          </Animated.View>
         }
       />
 
