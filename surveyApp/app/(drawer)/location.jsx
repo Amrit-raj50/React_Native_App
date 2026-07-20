@@ -3,11 +3,31 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } fr
 import * as Location from 'expo-location';
 import * as Clipboard from 'expo-clipboard';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import Animated, { FadeInUp, ZoomIn } from 'react-native-reanimated';
+import { useRouter } from 'expo-router';
 
 export default function LocationScreen() {
+  const router = useRouter();
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [weather, setWeather] = useState(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+
+  const fetchWeather = async (lat, lon) => {
+    setWeatherLoading(true);
+    try {
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+      const data = await res.json();
+      if (data && data.current_weather) {
+        setWeather(data.current_weather);
+      }
+    } catch (e) {
+      console.log('Failed to fetch weather', e);
+    } finally {
+      setWeatherLoading(false);
+    }
+  };
 
   const fetchLocation = async () => {
     setLoading(true);
@@ -24,6 +44,7 @@ export default function LocationScreen() {
         accuracy: Location.Accuracy.Balanced,
       });
       setLocation(loc);
+      await fetchWeather(loc.coords.latitude, loc.coords.longitude);
     } catch (error) {
       setErrorMsg('Failed to fetch location');
     } finally {
@@ -45,9 +66,14 @@ export default function LocationScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Current Location</Text>
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={() => router.push('/(tabs)')} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={28} color="#2F3640" />
+        </TouchableOpacity>
+        <Text style={styles.title}>Current Location</Text>
+      </View>
       
-      <View style={styles.card}>
+      <Animated.View entering={FadeInUp.delay(100).duration(500)} style={styles.card}>
         {loading ? (
           <ActivityIndicator size="large" color="#2E86DE" />
         ) : errorMsg ? (
@@ -70,9 +96,33 @@ export default function LocationScreen() {
         ) : (
           <Text style={styles.text}>Location not available</Text>
         )}
-      </View>
+      </Animated.View>
 
-      <View style={styles.actions}>
+      <Text style={styles.title}>Current Weather</Text>
+      <Animated.View entering={FadeInUp.delay(300).duration(500)} style={styles.card}>
+        {loading || weatherLoading ? (
+          <ActivityIndicator size="large" color="#2E86DE" />
+        ) : weather ? (
+          <View style={styles.detailsContainer}>
+            <View style={styles.row}>
+              <Text style={styles.label}>Temperature:</Text>
+              <Text style={styles.value}>{weather.temperature}°C</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Wind Speed:</Text>
+              <Text style={styles.value}>{weather.windspeed} km/h</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Conditions Code:</Text>
+              <Text style={styles.value}>{weather.weathercode}</Text>
+            </View>
+          </View>
+        ) : (
+          <Text style={styles.text}>Weather data not available</Text>
+        )}
+      </Animated.View>
+
+      <Animated.View entering={ZoomIn.delay(500).duration(500)} style={styles.actions}>
         <TouchableOpacity style={styles.button} onPress={fetchLocation}>
           <Ionicons name="refresh" size={20} color="#fff" />
           <Text style={styles.buttonText}>Refresh</Text>
@@ -86,7 +136,7 @@ export default function LocationScreen() {
           <Ionicons name="copy" size={20} color="#fff" />
           <Text style={styles.buttonText}>Copy</Text>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
     </View>
   );
 }
@@ -98,18 +148,30 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F6FA',
     justifyContent: 'center',
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  backButton: {
+    position: 'absolute',
+    left: 0,
+    padding: 4,
+    zIndex: 10,
+  },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#2F3640',
-    marginBottom: 20,
     textAlign: 'center',
   },
   card: {
     backgroundColor: '#fff',
     padding: 20,
     borderRadius: 15,
-    minHeight: 150,
+    minHeight: 120,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
